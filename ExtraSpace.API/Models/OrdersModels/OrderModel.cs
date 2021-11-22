@@ -16,6 +16,7 @@ namespace ExtraSpace.API.Models.OrdersModels
         public string Phone { get; set; }
         public string ClientName { get; set; }
         public string Comment { get; set; }
+        public string IP { get; set; }
         public bool IsComplete { get; set; }
         public DateTime InsertDate { get; set; }
         public bool IsDeleted { get; set; }

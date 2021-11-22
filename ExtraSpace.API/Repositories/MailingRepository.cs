@@ -4,9 +4,13 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using VkNet;
+using VkNet.Enums.Filters;
+using VkNet.Model;
 
 namespace ExtraSpace.API.Repositories
 {
@@ -31,7 +35,7 @@ namespace ExtraSpace.API.Repositories
                 message.Body = mail.Body;
                 message.BodyEncoding = Encoding.UTF8;
                 message.IsBodyHtml = true;
-                SmtpClient client = new SmtpClient("smtp.mail.ru", 465); //Gmail smtp    
+                SmtpClient client = new SmtpClient("smtp.gmail.com", 25); //Gmail smtp    
                 System.Net.NetworkCredential basicCredential1 = new
                 System.Net.NetworkCredential(_login, _password);
                 client.EnableSsl = true;

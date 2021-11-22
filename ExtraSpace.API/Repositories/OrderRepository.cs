@@ -1,5 +1,6 @@
 ﻿using ExtraSpace.API.Models;
 using ExtraSpace.API.Models.OrdersModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,19 @@ namespace ExtraSpace.API.Repositories
     public class OrderRepository : IOrderRepository
     {
         private readonly IConfiguration _configuration;
+        private readonly IMailingRepository _mailingRepository;
+        private readonly IHttpContextAccessor _accessor;
         private readonly string _connectionString;
-        public OrderRepository(IConfiguration configuration)
+        public OrderRepository(IConfiguration configuration, IMailingRepository mailingRepository, IHttpContextAccessor accessor)
         {
             this._configuration = configuration;
             this._connectionString = _configuration.GetConnectionString("MainConnectionString");
+            this._mailingRepository = mailingRepository;
+            this._accessor = accessor;
         }
+
+
+
         public ApiResponse<List<OrderModel>> GetList() =>
             ApiResponse<List<OrderModel>>.DoMethod(resp =>
             {
@@ -35,7 +43,7 @@ namespace ExtraSpace.API.Repositories
                     resp.Throw(-2, "Empty_Data");
 
                 if (string.IsNullOrEmpty(order.Phone))
-                    resp.Throw(1, "Не пережан номер телефона");
+                    resp.Throw(1, "Не передан номер телефона");
 
                 if (string.IsNullOrEmpty(order.ClientName))
                     resp.Throw(2, "Не передано имя клиента");
@@ -49,8 +57,24 @@ namespace ExtraSpace.API.Repositories
                 if (order.Phone.Length != 11)
                     resp.Throw(5, "Неверный формат номера телефона");
 
+                order.InsertDate = DateTime.Now;
+                order.IsDeleted = false;
+                order.IsComplete = false;
+                order.IP = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+
+                List<OrderModel> orders = GetList().GetResultIfNotError();
+                if (orders
+                    .Where(o => (o.Phone == order.Phone || o.IP == order.IP) &&
+                    order.InsertDate.Date == DateTime.Now.Date &&
+                    order.InsertDate.Hour == DateTime.Now.Hour).Count() >= 3)
+                    resp.Throw(6, "Слишком много заявок, обратитесь позже");
+
                 using (AutoDataManager.AutoDataManager manager = new AutoDataManager.AutoDataManager(_connectionString))
                     order.Id = manager.InsertModel(order, true);
+
+                string body = $@"Phone: +{order.Phone}<br>Name: {order.ClientName}<br>Comment: {order.Comment}";
+
+                _mailingRepository.SendMail(new Models.MailingModels.MailModel("ExtraSpace@space.kz", "sssequencebreak@gmail.com", "New Order!", body));
 
                 resp.Data = order;
             });

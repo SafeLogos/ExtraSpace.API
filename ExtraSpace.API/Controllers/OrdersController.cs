@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ExtraSpace.API.Models;
+using ExtraSpace.API.Models.OrdersModels;
 using ExtraSpace.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,16 +22,8 @@ namespace ExtraSpace.API.Controllers
             this._mailingRepository = mailingRepository;
         }
 
-        [HttpGet("[action]")]
-        public IActionResult Test() =>
-            Ok(_mailingRepository.SendMail(new Models.MailingModels.MailModel() 
-            {
-                 Body = "TEST PEPEGA",
-                  Title = "SENDED",
-                   From = "novikov.zahar.nz@gmail.com",
-                    To = "sssequencebreak@gmail.com"
-            }));
-
+        
+        [HttpGet("asduoa234enr5pnvd")]
         public IActionResult GetReport()
         {
             ApiResponse<byte[]> report = _orderRepository.GetReport();
@@ -40,5 +33,9 @@ namespace ExtraSpace.API.Controllers
 
             return File(report.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "report.xlsx");
         }
+
+        [HttpPost("[action]")]
+        public IActionResult AddOrder([FromBody] OrderModel order) =>
+            Ok(this._orderRepository.AddOrder(order));
     }
 }
