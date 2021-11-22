@@ -8,9 +8,6 @@ using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
-using VkNet;
-using VkNet.Enums.Filters;
-using VkNet.Model;
 
 namespace ExtraSpace.API.Repositories
 {
