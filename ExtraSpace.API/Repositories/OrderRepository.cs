@@ -54,19 +54,20 @@ namespace ExtraSpace.API.Repositories
                 if (!string.IsNullOrEmpty(order.Comment) && order.Comment.Length > 300)
                     resp.Throw(4, "Комментарий не может быть длиннее 300 символов");
 
-                if (order.Phone.Length != 11)
+                if (order.Phone.Length != 10)
                     resp.Throw(5, "Неверный формат номера телефона");
 
                 order.InsertDate = DateTime.Now;
                 order.IsDeleted = false;
                 order.IsComplete = false;
                 order.IP = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+                order.Phone = "7" + order.Phone;
 
                 List<OrderModel> orders = GetList().GetResultIfNotError();
                 if (orders
                     .Where(o => (o.Phone == order.Phone || o.IP == order.IP) &&
-                    order.InsertDate.Date == DateTime.Now.Date &&
-                    order.InsertDate.Hour == DateTime.Now.Hour).Count() >= 3)
+                    o.InsertDate.Date == DateTime.Now.Date &&
+                    o.InsertDate.Hour == DateTime.Now.Hour).Count() >= 3)
                     resp.Throw(6, "Слишком много заявок, обратитесь позже");
 
                 using (AutoDataManager.AutoDataManager manager = new AutoDataManager.AutoDataManager(_connectionString))
@@ -74,8 +75,9 @@ namespace ExtraSpace.API.Repositories
 
                 string body = $@"Phone: +{order.Phone}<br>Name: {order.ClientName}<br>Comment: {order.Comment}";
 
+#if !DEBUG
                 _mailingRepository.SendMail(new Models.MailingModels.MailModel("ExtraSpace@space.kz", "sssequencebreak@gmail.com", "New Order!", body));
-
+#endif
                 resp.Data = order;
             });
     }

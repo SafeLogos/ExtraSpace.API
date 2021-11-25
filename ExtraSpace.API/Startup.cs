@@ -30,6 +30,10 @@ namespace ExtraSpace.API
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<IMailingRepository, MailingRepository>();
             services.AddControllers();
+            services.AddCors(opt =>
+            {
+                opt.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +44,7 @@ namespace ExtraSpace.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors();
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -50,6 +55,7 @@ namespace ExtraSpace.API
             {
                 endpoints.MapControllers();
             });
+
         }
     }
 }

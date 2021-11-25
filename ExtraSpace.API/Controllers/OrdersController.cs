@@ -22,6 +22,9 @@ namespace ExtraSpace.API.Controllers
             this._mailingRepository = mailingRepository;
         }
 
+        [HttpGet("[action]")]
+        public IActionResult Test() =>
+            Ok("Ok");
         
         [HttpGet("asduoa234enr5pnvd")]
         public IActionResult GetReport()
