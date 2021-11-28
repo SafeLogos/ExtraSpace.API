@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <Reference Include="AutoDataManager">
-      <HintPath>..\..\..\..\..\..\git\libs\AutoDataManager.dll</HintPath>
+      <HintPath>..\..\libs\netcoreapp3.1\AutoDataManager.dll</HintPath>
     </Reference>
   </ItemGroup>
 
