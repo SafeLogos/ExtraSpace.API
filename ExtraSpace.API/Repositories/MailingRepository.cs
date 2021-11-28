@@ -26,13 +26,15 @@ namespace ExtraSpace.API.Repositories
         public ApiResponse<bool> SendMail(MailModel mail) =>
             ApiResponse<bool>.DoMethod(resp =>
             {
+
+
                 MailMessage message = new MailMessage(mail.From, mail.To);
 
                 message.Subject = mail.Title;
                 message.Body = mail.Body;
                 message.BodyEncoding = Encoding.UTF8;
                 message.IsBodyHtml = true;
-                SmtpClient client = new SmtpClient("smtp.gmail.com", 25); //Gmail smtp    
+                SmtpClient client = new SmtpClient("smtp.yandex.ru", 25); //Gmail smtp    
                 System.Net.NetworkCredential basicCredential1 = new
                 System.Net.NetworkCredential(_login, _password);
                 client.EnableSsl = true;

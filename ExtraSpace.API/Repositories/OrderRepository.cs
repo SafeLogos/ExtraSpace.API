@@ -75,9 +75,7 @@ namespace ExtraSpace.API.Repositories
 
                 string body = $@"Phone: +{order.Phone}<br>Name: {order.ClientName}<br>Comment: {order.Comment}";
 
-#if !DEBUG
-                _mailingRepository.SendMail(new Models.MailingModels.MailModel("ExtraSpace@space.kz", "sssequencebreak@gmail.com", "New Order!", body));
-#endif
+                _mailingRepository.SendMail(new Models.MailingModels.MailModel("extraspace.reporter@yandex.kz", "sssequencebreak@gmail.com", "New Order!", body));
                 resp.Data = order;
             });
     }
