@@ -12,14 +12,14 @@ namespace ExtraSpace.API.Repositories
     public class OrderRepository : IOrderRepository
     {
         private readonly IConfiguration _configuration;
-        private readonly IMailingRepository _mailingRepository;
+        private readonly ITelegramRepository _telegramRepository;
         private readonly IHttpContextAccessor _accessor;
         private readonly string _connectionString;
-        public OrderRepository(IConfiguration configuration, IMailingRepository mailingRepository, IHttpContextAccessor accessor)
+        public OrderRepository(IConfiguration configuration, ITelegramRepository telegramRepository, IHttpContextAccessor accessor)
         {
             this._configuration = configuration;
             this._connectionString = _configuration.GetConnectionString("MainConnectionString");
-            this._mailingRepository = mailingRepository;
+            this._telegramRepository = telegramRepository;
             this._accessor = accessor;
         }
 
@@ -73,9 +73,9 @@ namespace ExtraSpace.API.Repositories
                 using (AutoDataManager.AutoDataManager manager = new AutoDataManager.AutoDataManager(_connectionString))
                     order.Id = manager.InsertModel(order, true);
 
-                string body = $@"Phone: +{order.Phone}<br>Name: {order.ClientName}<br>Comment: {order.Comment}";
 
-                _mailingRepository.SendMail(new Models.MailingModels.MailModel("extraspace.reporter@yandex.kz", "sssequencebreak@gmail.com", "New Order!", body));
+                _telegramRepository.NotifyAllMembersAboutNewOrder(order);
+
                 resp.Data = order;
             });
     }

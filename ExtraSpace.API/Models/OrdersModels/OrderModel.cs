@@ -20,5 +20,12 @@ namespace ExtraSpace.API.Models.OrdersModels
         public bool IsComplete { get; set; }
         public DateTime InsertDate { get; set; }
         public bool IsDeleted { get; set; }
+
+        public override string ToString() =>
+            $"Order №{Id}\n" +
+            $"Phone: +{Phone}\n" +
+            $"ClientName: {ClientName}\n" +
+            $"Comment: {Comment}\n" +
+            $"Completed: {(IsComplete ? "Yes" : "No")}";
     }
 }

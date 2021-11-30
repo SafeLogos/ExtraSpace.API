@@ -15,11 +15,9 @@ namespace ExtraSpace.API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IMailingRepository _mailingRepository;
-        public OrdersController(IOrderRepository orderRepository, IMailingRepository mailingRepository)
+        public OrdersController(IOrderRepository orderRepository)
         {
             this._orderRepository = orderRepository;
-            this._mailingRepository = mailingRepository;
         }
 
         [HttpGet("[action]")]

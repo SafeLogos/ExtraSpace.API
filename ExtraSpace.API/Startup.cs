@@ -28,7 +28,7 @@ namespace ExtraSpace.API
         {
             services.AddHttpContextAccessor();
             services.AddTransient<IOrderRepository, OrderRepository>();
-            services.AddTransient<IMailingRepository, MailingRepository>();
+            services.AddTransient<ITelegramRepository, TelegramRepository>();
             services.AddControllers();
             services.AddCors(opt =>
             {
