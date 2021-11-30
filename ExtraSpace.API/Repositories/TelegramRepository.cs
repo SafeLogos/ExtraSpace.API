@@ -27,8 +27,8 @@ namespace ExtraSpace.API.Repositories
 
             _actions = new List<TelegramCommandEntity>();
             _actions.Add(new TelegramCommandEntity("/start", "/start", "Список доступных команд", AllAvailableActions));
-            _actions.Add(new TelegramCommandEntity("/allClients", "/allClients", "Список всех клиентов", AllClients));
-            _actions.Add(new TelegramCommandEntity("/approve", "/approve_clientId", "Подтвердить регистрацию клиента", ApproveClient));
+            _actions.Add(new TelegramCommandEntity("/allClients", "/allClients", "Список всех пользователей", AllUsers));
+            _actions.Add(new TelegramCommandEntity("/approve", "/approve_clientId", "Подтвердить регистрацию пользователей", ApproveUser));
             _actions.Add(new TelegramCommandEntity("/newOrders", "/newOrders", "Не обработанные заказы", NotCompletedOrders));
             _actions.Add(new TelegramCommandEntity("/completeOrder", "/completeOrder_orderId", "Завершить заказ", CompleteOrder));
         }
@@ -52,7 +52,7 @@ namespace ExtraSpace.API.Repositories
                 resp.Data = Action(update).Data;
             });
 
-        public ApiResponse<List<TelegramClientModel>> GetAllClients() =>
+        public ApiResponse<List<TelegramClientModel>> GetAllUsers() =>
             ApiResponse<List<TelegramClientModel>>.DoMethod(resp => resp.Data = _manager.GetListAuto<TelegramClientModel>());
 
         public ApiResponse<TelegramClientModel> ApproveClient(long chatId) =>
@@ -61,7 +61,7 @@ namespace ExtraSpace.API.Repositories
                 string sql = "SELECT * FROM dbo.TelegramClients tc (NOLOCK) WHERE tc.Id = @chatId";
                 TelegramClientModel client = _manager.Get<TelegramClientModel>(sql, false, new { chatId });
                 if (client == null)
-                    resp.Throw(1, "Клиент не найден");
+                    resp.Throw(1, "Пользователь не найден");
                 client.IsApproved = true;
                 _manager.UpdateModel(client);
                 resp.Data = client;
@@ -70,7 +70,7 @@ namespace ExtraSpace.API.Repositories
         public ApiResponse<bool> NotifyAllMembers(string text) =>
             ApiResponse<bool>.DoMethod(resp =>
             {
-                List<TelegramClientModel> clients = GetAllClients().GetResultIfNotError();
+                List<TelegramClientModel> clients = GetAllUsers().GetResultIfNotError();
                 clients = clients.Where(c => c.IsApproved).ToList();
                 clients.ForEach(c => SendHtml(c.Id, text));
                 resp.Data = true;
@@ -180,17 +180,17 @@ namespace ExtraSpace.API.Repositories
                 resp.Data = true;
             });
 
-        private ApiResponse<bool> AllClients(UpdateModel update) =>
+        private ApiResponse<bool> AllUsers(UpdateModel update) =>
             ApiResponse<bool>.DoMethod(resp =>
             {
-                List<TelegramClientModel> clients = GetAllClients().Data;
+                List<TelegramClientModel> clients = GetAllUsers().Data;
                 if(clients == null || clients.Count <= 0)
                 {
-                    SendHtml(update, "Упс! Клиенты не найдены или возможно произошла ошибка");
+                    SendHtml(update, "Упс! Пользователи не найдены или возможно произошла ошибка");
                     return;
                 }
 
-                string html = $"Подтверждено клиентов <b>{clients.Where(c => c.IsApproved).Count()}/{clients.Count}</b>\n";
+                string html = $"Подтверждено пользователей <b>{clients.Where(c => c.IsApproved).Count()}/{clients.Count}</b>\n";
                 foreach (var item in clients)
                 {
                     html += item.Username + " - " + (item.IsApproved ? "[Подтвержден]" : "[Не подтвержден]");
@@ -202,14 +202,14 @@ namespace ExtraSpace.API.Repositories
                 resp.Data = SendHtml(update, html).Data;
             });
 
-        private ApiResponse<bool> ApproveClient(UpdateModel update) =>
+        private ApiResponse<bool> ApproveUser(UpdateModel update) =>
             ApiResponse<bool>.DoMethod(resp =>
             {
                 string text = update.message.text;
                 string[] textParts = text.Split('_');
                 if(textParts.Count() != 2)
                 {
-                    SendHtml(update, "Не передан id клиента");
+                    SendHtml(update, "Не передан id пользователя");
                     return;
                 }
 
@@ -217,14 +217,14 @@ namespace ExtraSpace.API.Repositories
                 bool parseResult = long.TryParse(textParts.Last(), out chatId);
                 if (!parseResult)
                 {
-                    SendHtml(update, "Неверно передан id клиента");
+                    SendHtml(update, "Неверно передан id пользователя");
                     return;
                 }
 
                 ApiResponse<TelegramClientModel> approveResult = ApproveClient(chatId);
                 if(approveResult.Code < 0)
                 {
-                    SendHtml(update, "Произошла ошибка при подтверждении клиента");
+                    SendHtml(update, "Произошла ошибка при подтверждении пользователя");
                     return;
                 }
 
@@ -234,7 +234,7 @@ namespace ExtraSpace.API.Repositories
                     return;
                 }
 
-                SendHtml(update, "Клиент успешно подтвержден и будет уведомлен об этом");
+                SendHtml(update, "Пользователь успешно подтвержден и будет уведомлен об этом");
                 SendHtml(approveResult.Data.Id, "Поздравляем! Вас успешно зарегистрировали в нашем боте. Для начала работы введите /start");
                 resp.Data = true;
             });
@@ -299,7 +299,7 @@ namespace ExtraSpace.API.Repositories
         ApiResponse<bool> ProcessMessage(UpdateModel update);
         ApiResponse<bool> NotifyAllMembers(string text);
         ApiResponse<bool> NotifyAllMembersAboutNewOrder(OrderModel order);
-        ApiResponse<List<TelegramClientModel>> GetAllClients();
+        ApiResponse<List<TelegramClientModel>> GetAllUsers();
         ApiResponse<TelegramClientModel> ApproveClient(long chatId);
     }
 }
