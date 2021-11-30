@@ -27,7 +27,7 @@ namespace ExtraSpace.API.Repositories
 
             _actions = new List<TelegramCommandEntity>();
             _actions.Add(new TelegramCommandEntity("/start", "/start", "Список доступных команд", AllAvailableActions));
-            _actions.Add(new TelegramCommandEntity("/allClients", "/allClients", "Список всех пользователей", AllUsers));
+            _actions.Add(new TelegramCommandEntity("/allUsers", "/allUsers", "Список всех пользователей", AllUsers));
             _actions.Add(new TelegramCommandEntity("/approve", "/approve_clientId", "Подтвердить регистрацию пользователей", ApproveUser));
             _actions.Add(new TelegramCommandEntity("/newOrders", "/newOrders", "Не обработанные заказы", NotCompletedOrders));
             _actions.Add(new TelegramCommandEntity("/completeOrder", "/completeOrder_orderId", "Завершить заказ", CompleteOrder));
